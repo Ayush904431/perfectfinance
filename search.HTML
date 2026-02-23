@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FI Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  background: #0f172a;
+  color: #f1f5f9;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+input, button {
+  padding: 12px;
+  margin: 6px 0;
+  width: 100%;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 6px;
+}
+
+input {
+  background: #1e293b;
+  color: white;
+  border: 1px solid #334155;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#searchBtn {
+  background: #2563eb;
+  color: white;
+}
+
+#printBtn {
+  background: #16a34a;
+  color: white;
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.data-card {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+
+.data-card b {
+  color: #38bdf8;
+}
+
+.data-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.data-card iframe {
+  width: 100%;
+  height: 250px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  button {
+    display: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h2>FI Report</h2>
+
+<input type="text" id="loginNo" placeholder="Enter Login No.">
+<button id="searchBtn" onclick="searchData()">Search</button>
+<button id="printBtn" onclick="printPage()">Download / Print</button>
+
+<div id="status"></div>
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const backendURL = "https://script.google.com/macros/s/AKfycbyDU0vOgUGHRN5M9fCDihEp3Yfvo4Mvy25zxp9KlZxCtfukUD7TN1z8mEghGQvyPLEu/exec";
+
+function searchData() {
+  const loginNo = document.getElementById("loginNo").value.trim();
+  if (!loginNo) {
+    alert("Enter Login No.");
+    return;
+  }
+
+  document.getElementById("status").innerHTML = "Searching...";
+
+  fetch(backendURL + "?loginNo=" + encodeURIComponent(loginNo))
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("status").innerHTML = "";
+
+      if (!data.success) {
+        document.getElementById("result").innerHTML = "<p>No Data Found</p>";
+        return;
+      }
+
+      const obj = data.data;
+      let finalHTML = "<div class='data-grid'>";
+
+      for (let key in obj) {
+        let value = obj[key];
+
+        // Skip blank / empty / null values
+        if (
+          value === null ||
+          value === undefined ||
+          value.toString().trim() === ""
+        ) {
+          continue;
+        }
+
+        // Google Drive Image
+        if (typeof value === "string" && value.includes("drive.google.com")) {
+          const imgUrl = convertDriveToImage(value);
+
+          finalHTML += `
+            <div class="data-card">
+              <b>${key}</b><br>
+              <img src="${imgUrl}" onerror="this.style.display='none'">
+            </div>`;
+        }
+
+        // Latitude & Longitude Map
+        else if (typeof value === "string" && value.includes("Lat:") && value.includes("Lng:")) {
+
+          const latMatch = value.match(/Lat:\s*([0-9.]+)/i);
+          const lngMatch = value.match(/Lng:\s*([0-9.]+)/i);
+
+          if (latMatch && lngMatch) {
+            const lat = latMatch[1];
+            const lng = lngMatch[1];
+
+            const mapURL = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+
+            finalHTML += `
+              <div class="data-card">
+                <b>${key}</b><br>
+                ${value}
+                <iframe src="${mapURL}" frameborder="0" allowfullscreen></iframe>
+              </div>`;
+          }
+        }
+
+        // Normal Text (Timestamp formatted here)
+        else {
+
+          // Format Timestamp to DD-MM-YYYY HH:MM:SS
+          if (key.toLowerCase() === "timestamp") {
+            value = formatIndianDate(value);
+          }
+
+          finalHTML += `
+            <div class="data-card">
+              <b>${key}</b><br>
+              ${value}
+            </div>`;
+        }
+      }
+
+      finalHTML += "</div>";
+      document.getElementById("result").innerHTML = finalHTML;
+    })
+    .catch(err => {
+      document.getElementById("status").innerHTML = "Error loading data";
+      console.error(err);
+    });
+}
+
+function convertDriveToImage(url) {
+  let id = url.match(/\/d\/(.*?)\//);
+  if (!id) return "";
+  return "https://drive.google.com/thumbnail?id=" + id[1] + "&sz=w1000";
+}
+
+// Timestamp Format Function (Indian Format)
+function formatIndianDate(dateString) {
+  const date = new Date(dateString);
+
+  if (isNaN(date)) return dateString;
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
+
+function printPage() {
+  window.print();
+}
+
+</script>
+
+</body>
+</html>

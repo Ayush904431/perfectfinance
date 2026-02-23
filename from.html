@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perfect Finanace</title>
+
+<style>
+body{
+  font-family:Arial;
+  padding:20px;
+  background:#0f172a;
+  color:#ffffff;
+}
+h2{color:#38bdf8;}
+input,select,textarea{
+  width:100%;
+  padding:8px;
+  margin:5px 0;
+  background:#1e293b;
+  color:#fff;
+  border:1px solid #334155;
+}
+button{
+  padding:12px;
+  background:#0ea5e9;
+  color:#fff;
+  border:none;
+  width:100%;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:disabled{
+  background:#555;
+}
+.hidden{display:none;}
+
+#loader{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+  font-size:20px;
+  color:#fff;
+  z-index:9999;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader">Processing... Please Wait ⏳</div>
+
+<center><h2>Perfect Finance RVR Verification Form</h2></center>
+
+<form id="rvrForm">
+
+<label><strong>Login No.</strong></label><br>
+<input name="Login No." placeholder="Login No." required type="number" min="200000" max="500000">
+<label><strong>Branch</strong></label><br>
+<select name="Branch Name" required>
+  <option selected disabled>Selected Option</option>
+<option>Head Office</option>
+<option>Azadpur</option>
+<option>Bahadurgarh</option>
+<option>Geeta Colony</option>
+<option>Ghaziabad</option>
+<option>Govindpuri</option>
+<option>Gurgaon</option>
+<option>Hapur</option>
+<option>Jaipur</option>
+<option>Jewar</option>
+<option>Nangli Sakrawati</option>
+<option>Noida</option>
+<option>Palam</option>
+<option>Peeragarhi</option>
+<option>Pehladpur</option>
+<option>Rewari</option>
+<option>Seemapuri</option>
+<option>Shadipur</option>
+<option>Subhash Nagar</option>
+</select>
+<label><strong>Person Role</strong></label><br>
+<select name="Person Role" id="personRole" onchange="handleRoleChange()" required>
+  <option selected disabled>Selected Option</option>
+<option value="Applicant">Applicant</option>
+<option>Guarantor</option>
+<option>Co-Applicant</option>
+</select>
+
+<div id="applicantFields">
+<label><strong>Loan Type</strong></label><br>
+<select name="Loan type" required onchange="handleRoleChange()" id="loanRole">
+  <option selected disabled>Selected Option</option>
+<option value="New">New</option>
+<option>Refinance</option>
+<option>Repo Sale</option>
+<option>Battery</option>
+</select>
+<label><strong>Manufacturer</strong></label><br>
+<input name="Manufacturer Name" placeholder="Manufacturer Name" required>
+<label><strong>Battery Type</strong></label><br>
+<select name="Battery Type" required>
+  <option selected disabled>Selected Option</option>
+<option value="Lithium">Lithium</option>
+<option>Lead Acid</option>
+<option>Without Battery</option>
+<option>Smart Battery</option>
+</select>
+<label><strong>Price</strong></label><br>
+<input 
+  type="number" 
+  name="Price" 
+  placeholder="Price"
+  required
+>
+<label><strong>Loan Amount</strong></label><br>
+<input name="Required Loan Amt" placeholder="Required Loan Amt" required type="number" min="30000" max="180000">
+<label><strong>Tenure</strong></label><br>
+<input name="Tenure (in Month)" placeholder="Tenure (in Month)" required
+  min="3" 
+  max="24"
+  step="1" type="number">
+</div>
+<div id="relationwithhirerfield">
+  <label><strong>Relation With Hirer</strong></label><br>
+<input name="Relation With Hirer" placeholder="Relation With Hirer" required></div>
+<label><strong>Name of Person Verified</strong></label><br>
+<input name="Name of Person Verified" placeholder="Name of Person Verified" required>
+<label><strong>Mobile No.</strong></label><br>
+<input name="Mobile No." placeholder="Mobile No." type="number" min="5999999999" required max="9999999999">
+<label><strong>Present Address</strong></label><br>
+<textarea name="Present Address" placeholder="Present Address"  required ></textarea>
+<label><strong>Landmark</strong></label><br>
+<input name="Landmark" placeholder="Landmark"  required>
+<label><strong>Pincode</strong></label><br>
+<input name="Pin Code" placeholder="Pin Code" type="number"  required>
+<label><strong>Type of Residence</strong></label><br>
+<select name="Type Of Residence" required>
+  <option selected disabled>Selected Option</option>
+<option>Owned</option>
+<option>Rented</option>
+<option>Family Owned</option>
+<option>Employeed House</option>
+</select>
+<label><strong>Duration of stay at current address</strong></label><br>
+<select name="Duration of stay at current address"  required>
+  <option selected disabled>Selected Option</option>
+<option>Less than 6 Months</option>
+<option>6 Months to 1 Year</option>
+<option>1 to 3 Years</option>
+<option>More than 3 years</option>
+</select>
+<label><strong>Type of House</strong></label><br>
+<select name="Type of house"  required>
+  <option selected disabled>Selected Option</option>
+<option>Quater</option>
+<option>Flat</option>
+<option>Chawl / Jhuggi</option>
+</select>
+<label><strong>Type of locality</strong></label><br>
+<select name="Type of locality"  required>
+    <option selected disabled>Selected Option</option>
+<option>Posh</option>
+<option>Medium</option>
+<option>Poor</option>
+</select>
+<label><strong>Standard of living</strong></label><br>
+<select name="Standard of living"  required>
+    <option selected disabled>Selected Option</option>
+<option>Low</option>
+<option>Middle</option>
+<option>High</option>
+</select>
+<label><strong>No. of family members</strong></label><br>
+<select name="No. of family members"  required>
+    <option selected disabled>Selected Option</option>
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option>More than 5</option>
+</select>
+<label><strong>Permanent Address</strong></label><br>
+<input name="Permanent Address" placeholder="Permanent Address"  required>
+<label><strong>Permanent Address Contact Person Name</strong></label><br>
+<input name="Permanent Address Contact Person name" placeholder="Permanent Address Contact Person name"  required>
+<label><strong>Permanent Address Contact Person Contact No.</strong></label><br>
+<input name="Permanent Address Contact Person Contact No."  required placeholder="Permanent Address Contact Person Contact No." type="number" min="5999999999" max="9999999999">
+<label><strong>Relation with applicant</strong></label><br>
+<input name="Relation with applicant" placeholder="Relation with applicant"  required>
+
+<label><strong>Person Met at address</strong></label><br>
+<select name="Person Met at address" required placeholder="Person Met at address" onchange="handleRoleChange()" id="personmetataddressrole">
+  <option selected disabled>Selected Option</option>
+    <option>Self</option>
+  <option>Family Member</option>
+  <option>Neighbor</option>
+</select>
+<div id="personmetataddressfield">
+<label><strong>Name of person met (if not self)</strong></label><br>
+<input name="Name of person met (if not self)" placeholder="Name of person met (if not self)"  required>
+<label><strong>Relation with person  (if not self)</strong></label><br>
+<input name="Relation with person  (if not self)" placeholder="Relation with person  (if not self)">
+<label><strong>Mobile No. of person met  (if not self)</strong></label><br>
+<input name="Mobile No. of person met  (if not self)" placeholder="Mobile No. of person met  (if not self)" type="number" min="5999999999" max="9999999999">
+</div>
+
+<label><strong>Does the applicant currently stay at the given address?</strong></label><br>
+<select name="Does the applicant currently stay at the given address?" required>
+    <option selected disabled>Selected Option</option>
+<option>Yes</option>
+<option>No</option>
+</select>
+<label><strong>Structure</strong></label><br>
+<select name="Structure" required>
+    <option selected disabled>Selected Option</option>
+<option>Pakka</option>
+<option>Kaccha</option>
+<option>Semi-Pakka</option>
+</select>
+<label><strong>Accommodation</strong></label><br>
+<select name="Accommodation" required>
+    <option selected disabled>Selected Option</option>
+<option>Bachelor</option>
+<option>With Parents</option>
+<option>Shared with Friends</option>
+<option>Relative</option>
+</select>
+
+
+<label><strong>Neighbor's verification</strong></label><br>
+<select name="Neighbor's verification" id="neighborrole" onchange="handleRoleChange()" required>
+    <option selected disabled>Selected Option</option>
+<option>Yes</option>
+<option>No</option>
+</select>
+
+<div id="Neighborfield">
+<label><strong>Neighbor's Name</strong></label><br>
+<input name="Neighbor's Name" placeholder="" required>
+<label><strong>Neighbor's Mobile No.</strong></label><br>
+<input name="Neighbor's Mobile No." placeholder="" type="number" min="5999999999" max="9999999999" required>
+</div>
+
+
+<label><strong>Who will Drive the Vehicle</strong></label><br>
+<input name="Who will Drive the Vehicle" placeholder="" required>
+<label><strong>Vehicle Driver No.</strong></label><br>
+<input name="Vehicle Driver No." placeholder="" type="number" min="5999999999" max="9999999999" required>
+
+<div id="incomesourcefield">
+<label><strong>Applicant any other Income source</strong></label><br>
+<select name="Applicant any other Income source" onchange="handleRoleChange()" id="incoemerole" required>
+    <option selected disabled>Selected Option</option>
+<option>Yes</option>
+<option>No</option>
+<option>Rental</option>
+</select>
+</div>
+
+<div id="incomefield">
+<label><strong>Office Name & Address</strong></label><br>
+<input name="Office Name & Address" placeholder="">
+<label><strong>Designation</strong></label><br>
+<input name="Designation" placeholder="">
+<label><strong>Monthly Income</strong></label><br>
+<input name="Monthly Income" placeholder="">
+<label><strong>Office contact no.</strong></label><br>
+<input name="Office contact no." placeholder="" type="number" min="5999999999" max="9999999999">
+<label><strong>Other Family Member Working Name</strong></label><br>
+<input name="Other Family Member Working Name" placeholder="">
+<label><strong>Other Family Member Working Contact No.</strong></label><br>
+<input name="Other Family Member Working Contact No." placeholder="" type="number" min="5999999999" max="9999999999">
+</div>
+
+<!-- Image Uploads -->
+ <label><strong>Adhar Card Front</strong></label><br>
+<input type="file" name="Adhar Card Front" required>
+<label><strong>Adhar Card Back</strong></label><br>
+<input type="file" name="Adhar Card Back" required>
+<label><strong>PAN CARD</strong></label><br>
+<input type="file" name="PAN CARD" required>
+<label><strong>Voter ID Front</strong></label><br>
+<input type="file" name="Voter ID Front">
+<label><strong>Voter ID Back</strong></label><br>
+<input type="file" name="Voter ID Back">
+<label><strong>Ownership proof</strong></label><br>
+<input type="file" name="Ownership proof">
+<label><strong>Other Id Proof</strong></label><br>
+<input type="file" name="Other Id Proof">
+<label><strong>Residence Photograph 1</strong></label><br>
+<input type="file" name="Residence Photograph 1" required>
+<label><strong>Residence Photograph 2</strong></label><br>
+<input type="file" name="Residence Photograph 2" required>
+<label><strong>Residence Photograph 3</strong></label><br>
+<input type="file" name="Residence Photograph 3" required>
+<label><strong>Selfie with Customer</strong></label><br>
+<input type="file" name="Selfie with Customer" required>
+<label><strong>Applicant Photograph at Signature time</strong></label><br>
+<input type="file" name="Applicant Photograph at Signature time" required>
+
+<div id="refinancefield">
+<label><strong>Vehicle Photograph Front Side</strong></label><br>
+<input type="file" name="Vehicle Photograph Front Side" required>
+<label><strong>Vehicle Photograph Back Side</strong></label><br>
+<input type="file" name="Vehicle Photograph Back Side" required>
+<label><strong>Customer Photograph with Vehicle</strong></label><br>
+<input type="file" name="Customer Photograph with Vehicle" required>
+<label><strong>Vehicle Battery Image with Battery No.</strong></label><br>
+<input type="file" name="Vehicle Battery Image with Battery No." required>
+<label><strong>Vehicle Chassis No.</strong></label><br>
+<input type="file" name="Vehicle Chassis No." required>
+<label><strong>RC Front</strong></label><br>
+<input type="file" name="RC Front" required>
+<label><strong>RC Back</strong></label><br>
+<input type="file" name="RC Back" required>
+</div>
+
+<label><strong>FI Status</strong></label><br>
+<select name="FI Status" placeholder="" required>
+    <option selected disabled>Selected Option</option>
+  <option>Positve</option>
+  <option>Negative</option>
+</select>
+<label><strong>Verifier Remark</strong></label><br>
+<input name="Verifier Remark" placeholder="" required>
+<label><strong>Verifier Name</strong></label><br>
+<input name="Verifier Name" placeholder="" required>
+
+
+<button type="button" onclick="submitForm()" id="submitBtn">Submit</button>
+
+</form>
+
+<script>
+
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyDU0vOgUGHRN5M9fCDihEp3Yfvo4Mvy25zxp9KlZxCtfukUD7TN1z8mEghGQvyPLEu/exec";
+
+function handleRoleChange() {
+  toggleApplicantFields();
+  relationwithhirer();
+  Neighbor();
+  refinancet();
+  incomef();
+  incomesouce();
+  personmet();
+}
+
+function toggleApplicantFields(){
+  const role = document.getElementById("personRole").value;
+  const div = document.getElementById("applicantFields");
+  div.style.display = (role === "Applicant") ? "block" : "none";
+}
+
+function relationwithhirer(){
+  const role = document.getElementById("personRole").value;
+  const div = document.getElementById("relationwithhirerfield");
+  div.style.display = (role === "Applicant") ? "none" : "block";
+}
+
+function Neighbor(){
+  const role = document.getElementById("neighborrole").value;
+  const div = document.getElementById("Neighborfield");
+  div.style.display = (role === "Yes") ? "block" : "none";
+}
+
+function refinancet(){
+  const role = document.getElementById("loanRole").value;
+  const div = document.getElementById("refinancefield");
+  div.style.display = (role === "Refinance") ? "block" : "none";
+}
+
+function incomef(){
+  const role = document.getElementById("incoemerole").value;
+  const div = document.getElementById("incomefield");
+  div.style.display = (role === "Yes") ? "block" : "none";
+}
+
+function incomesouce(){
+  const role = document.getElementById("personRole").value;
+  const div = document.getElementById("incomesourcefield");
+  div.style.display = (role === "Applicant") ? "block" : "none";
+}
+
+function personmet(){
+  const role = document.getElementById("personmetataddressrole").value;
+  const div = document.getElementById("personmetataddressfield");
+  div.style.display = (role === "Self") ? "none" : "block";
+}
+
+/* =========================
+   FINAL SUBMIT FUNCTION
+========================= */
+
+async function submitForm(){
+
+  const inputs = document.querySelectorAll("#rvrForm input, #rvrForm select, #rvrForm textarea");
+
+  for (let input of inputs){
+
+    // ✅ Skip hidden fields
+    if(input.offsetParent === null) continue;
+
+    if(input.hasAttribute("required")){
+      let value = input.value ? input.value.trim() : "";
+
+      if(value === ""){
+        alert("Please fill the field: " + input.name);
+        input.focus();
+        return;
+      }
+    }
+
+    if(input.tagName === "SELECT"){
+      const selectedOption = input.options[input.selectedIndex];
+      if(selectedOption && selectedOption.disabled){
+        alert("Please select a valid option for: " + input.name);
+        input.focus();
+        return;
+      }
+    }
+  }
+
+  document.getElementById("loader").style.display="flex";
+  document.getElementById("submitBtn").disabled=true;
+
+  let formData = {};
+
+  for (let input of inputs) {
+
+    // ✅ VERY IMPORTANT: Skip hidden fields while sending
+    if(input.offsetParent === null) continue;
+
+    if (input.type === "file") {
+      if (input.files.length > 0) {
+        formData[input.name] = await toBase64(input.files[0]);
+      }
+    } else {
+      formData[input.name] = input.value;
+    }
+  }
+
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      formData["Geo Location"] =
+        "Lat:"+pos.coords.latitude+
+        ", Lng:"+pos.coords.longitude;
+
+      sendData(formData);
+    },()=>sendData(formData));
+  } else {
+    sendData(formData);
+  }
+}
+
+function toBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=error=>reject(error);
+  });
+}
+
+async function sendData(data){
+  try{
+    const res = await fetch(WEBAPP_URL,{
+      method:"POST",
+      body:JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    document.getElementById("loader").style.display="none";
+    document.getElementById("submitBtn").disabled=false;
+
+    if(result.status==="success"){
+      alert("Form Submitted Successfully ✅");
+      document.getElementById("rvrForm").reset();
+    }else{
+      alert("Submission Failed ❌");
+    }
+
+  }catch(err){
+    document.getElementById("loader").style.display="none";
+    document.getElementById("submitBtn").disabled=false;
+    alert("Server Error ❌");
+  }
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Perfect Finance Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  padding:0;
+  background:#020617;
+  color:#fff;
+  font-family:Arial;
+}
+
+/* LOGIN BOX */
+.login-box{
+  max-width:350px;
+  margin:100px auto;
+  background:#0f172a;
+  padding:20px;
+  border-radius:10px;
+}
+
+input,button,select,textarea{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  box-sizing:border-box;
+  background:#1e293b;
+  border:1px solid #334155;
+  color:#fff;
+}
+
+button{
+  background:#2563eb;
+  border:none;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
+header{
+  background:#0f172a;
+  padding:10px;
+}
+
+header button{
+  width:auto;
+  margin-right:10px;
+}
+
+section{
+  padding:10px;
+}
+
+#dashboard{
+  display:none;
+}
+
+/* LOADER */
+#loader{
+  display:none;
+  margin-top:10px;
+}
+
+.progress-bar{
+  width:100%;
+  height:8px;
+  background:#1e293b;
+  border-radius:5px;
+  overflow:hidden;
+}
+
+.progress-bar div{
+  height:100%;
+  width:0%;
+  background:#22c55e;
+  animation: loading 1.5s linear infinite;
+}
+
+@keyframes loading{
+  0%{width:0%;}
+  50%{width:80%;}
+  100%{width:0%;}
+}
+
+.success{
+  color:#22c55e;
+  margin-top:8px;
+}
+
+.error{
+  color:#ef4444;
+  margin-top:8px;
+}
+
+/* TABLE */
+table{
+  background:#0f172a;
+  color:#fff;
+}
+
+th{
+  background:#1e293b;
+}
+
+td,th{
+  padding:6px;
+  border:1px solid #334155;
+}
+
+/* CASES SCROLL */
+#casesContainer{
+  max-height:500px;
+  overflow-y:auto;
+  border:1px solid #334155;
+}
+
+#casesContainer table{
+  border-collapse:collapse;
+  width:100%;
+}
+
+#casesContainer th{
+  position:sticky;
+  top:0;
+  background:#1e293b;
+  z-index:2;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-box" id="loginBox">
+  <h2>Login</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button id="loginBtn" onclick="login()">Login</button>
+
+  <div id="loader">
+    <div class="progress-bar">
+      <div></div>
+    </div>
+    <div>Processing...</div>
+  </div>
+
+  <div id="loginStatus"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+<header>
+  <button onclick="showSection('rvrFormSection')">Residence Verification</button>
+  <button onclick="showSection('casesSection')">All Cases</button>
+  <button onclick="showSection('fiReportSection')">FI Report</button>
+  <button onclick="logout()">Logout</button>
+  <span id="userInfo" style="float:right"></span>
+</header>
+
+<section id="rvrFormSection">
+<iframe src="from.html" style="width:100%;height:800px;border:none;"></iframe>
+</section>
+
+<section id="casesSection" style="display:none;">
+<h2>All Cases</h2>
+<input type="text" id="caseSearch" placeholder="Search Case..." onkeyup="searchCases()">
+<br><br>
+<div id="casesContainer">
+  <div id="cases"></div>
+</div>
+</section>
+
+<section id="fiReportSection" style="display:none;">
+<iframe src="search.HTML" style="width:100%;height:650px;border:none;"></iframe>
+</section>
+
+</div>
+
+<script>
+
+const backend = "https://script.google.com/macros/s/AKfycbyDU0vOgUGHRN5M9fCDihEp3Yfvo4Mvy25zxp9KlZxCtfukUD7TN1z8mEghGQvyPLEu/exec";
+
+/* LOGIN */
+function login(){
+
+  let u = document.getElementById("username").value;
+  let p = document.getElementById("password").value;
+
+  if(!u || !p){
+    document.getElementById("loginStatus").innerHTML =
+      "<div class='error'>Please enter Username & Password</div>";
+    return;
+  }
+
+  document.getElementById("loginBtn").disabled = true;
+  document.getElementById("loader").style.display="block";
+  document.getElementById("loginStatus").innerHTML="";
+
+  fetch(backend + "?action=login&u="+encodeURIComponent(u)+"&p="+encodeURIComponent(p))
+  .then(r=>r.json())
+  .then(res=>{
+
+    if(res.success){
+
+      document.getElementById("loginStatus").innerHTML =
+        "<div class='success'>Login Successful ✓</div>";
+
+      /* SAVE SESSION */
+      localStorage.setItem("pf_loggedIn", "true");
+      localStorage.setItem("pf_userRole", res.role);
+      localStorage.setItem("pf_userBranch", res.branch);
+      localStorage.setItem("pf_userName", res.user);
+
+      setTimeout(()=>{
+
+        showDashboard(res.user,res.role,res.branch);
+
+      },1000);
+
+    } else {
+
+      document.getElementById("loginStatus").innerHTML =
+        "<div class='error'>Invalid Login</div>";
+
+      document.getElementById("loader").style.display="none";
+      document.getElementById("loginBtn").disabled = false;
+    }
+
+  })
+  .catch(()=>{
+    document.getElementById("loginStatus").innerHTML =
+      "<div class='error'>Server Error</div>";
+
+    document.getElementById("loader").style.display="none";
+    document.getElementById("loginBtn").disabled = false;
+  });
+}
+
+/* SHOW DASHBOARD */
+function showDashboard(user,role,branch){
+
+  window.userRole = role;
+  window.userBranch = branch;
+  window.userName = user;
+
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+  document.getElementById("loader").style.display="none";
+
+  document.getElementById("userInfo").innerHTML =
+    "User: "+user+" | Role: "+role+" | Branch: "+branch;
+
+  loadCases();
+}
+
+/* AUTO LOGIN AFTER REFRESH */
+window.onload = function(){
+
+  if(localStorage.getItem("pf_loggedIn") === "true"){
+
+    let role = localStorage.getItem("pf_userRole");
+    let branch = localStorage.getItem("pf_userBranch");
+    let user = localStorage.getItem("pf_userName");
+
+    showDashboard(user,role,branch);
+  }
+
+};
+
+/* LOGOUT */
+function logout(){
+  localStorage.clear();
+  location.reload();
+}
+
+/* SHOW SECTION */
+function showSection(id){
+  document.getElementById("rvrFormSection").style.display="none";
+  document.getElementById("casesSection").style.display="none";
+  document.getElementById("fiReportSection").style.display="none";
+  document.getElementById(id).style.display="block";
+
+  if(id === "casesSection") loadCases();
+}
+
+/* LOAD CASES */
+function loadCases(){
+
+  let url = backend + "?action=cases" +
+           "&role=" + encodeURIComponent(window.userRole) +
+           "&branch=" + encodeURIComponent(window.userBranch) +
+           "&username=" + encodeURIComponent(window.userName);
+
+  fetch(url)
+  .then(r=>r.json())
+  .then(res=>{
+
+    if(!res.success){
+      document.getElementById("cases").innerHTML = "No Cases Found";
+      return;
+    }
+
+    let html = "<table id='casesTable'>";
+    html += "<thead><tr>";
+
+    let timestampIndex = -1;
+
+    res.headers.forEach((h,index)=>{
+      if(h.toLowerCase().includes("timestamp")){
+        timestampIndex = index;
+      }
+      html += "<th>"+h+"</th>";
+    });
+
+    html += "</tr></thead><tbody>";
+
+    for(let row of res.data){
+      html += "<tr>";
+
+      row.forEach((cell,index)=>{
+
+        if(index===timestampIndex && cell){
+          let d=new Date(cell);
+          if(!isNaN(d)){
+            let dd=String(d.getDate()).padStart(2,'0');
+            let mm=String(d.getMonth()+1).padStart(2,'0');
+            let yyyy=d.getFullYear();
+            let hh=String(d.getHours()).padStart(2,'0');
+            let min=String(d.getMinutes()).padStart(2,'0');
+            let ss=String(d.getSeconds()).padStart(2,'0');
+            cell=`${dd}-${mm}-${yyyy} ${hh}:${min}:${ss}`;
+          }
+        }
+
+        if(typeof cell==="string" && cell.includes("drive.google.com/file/d/")){
+          html+="<td><button onclick=\"window.open('"+cell+"','_blank')\">Open Image</button></td>";
+        } else {
+          html+="<td>"+cell+"</td>";
+        }
+
+      });
+
+      html+="</tr>";
+    }
+
+    html+="</tbody></table>";
+    document.getElementById("cases").innerHTML=html;
+
+  });
+}
+
+/* SEARCH */
+function searchCases(){
+  let input=document.getElementById("caseSearch").value.toLowerCase();
+  let table=document.getElementById("casesTable");
+  if(!table) return;
+
+  let tr=table.getElementsByTagName("tr");
+  for(let i=1;i<tr.length;i++){
+    let rowText=tr[i].innerText.toLowerCase();
+    tr[i].style.display=rowText.includes(input)?"":"none";
+  }
+}
+
+</script>
+
+</body>
+</html>
